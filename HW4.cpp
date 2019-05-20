@@ -31,8 +31,8 @@ int chef(int &food1, int &food2, int foodAvail[])
 }
 
 int hamburger_customer(int foodAvail[], int currentFood[], int &eatCount){
-	if(foodAvail[0] == 2 || foodAvail[1] == 2){
-		if(foodAvail[0] == 3 || foodAvail[1] == 3){
+	if(foodAvail[0] == 2 || foodAvail[0] == 3){
+		if(foodAvail[1] == 2 || foodAvail[1] == 3){
 			eatCount++;
 			foodAvail[0] = 0;
 			foodAvail[1] = 0;
@@ -43,8 +43,8 @@ int hamburger_customer(int foodAvail[], int currentFood[], int &eatCount){
 }
 
 int fries_customer(int foodAvail[], int currentFood[], int &eatCount){
-	if(foodAvail[0] == 1 || foodAvail[1] == 1){
-               if(foodAvail[0] == 3 || foodAvail[1] == 3){
+	if(foodAvail[0] == 1 || foodAvail[0] == 3){
+               if(foodAvail[1] == 1 || foodAvail[1] == 3){
                        eatCount++;
                        foodAvail[0] = 0;
                        foodAvail[1] = 0;
@@ -55,8 +55,8 @@ int fries_customer(int foodAvail[], int currentFood[], int &eatCount){
 }
 
 int soda_customer(int foodAvail[], int currentFood[], int &eatCount){
-   if(foodAvail[0] == 1 || foodAvail[1] == 1){
-                if(foodAvail[0] == 2 || foodAvail[1] == 2){
+   if(foodAvail[0] == 1 || foodAvail[0] == 2){
+                if(foodAvail[1] == 1 || foodAvail[1] == 2){
                         eatCount++;
                         foodAvail[0] = 0;
                         foodAvail[1] = 0;
@@ -84,16 +84,11 @@ int main()
 	int hamburger_food[2] = {0,0};
 	int fries_food[2] = {0, 0};
 	int soda_food[2] = {0, 0};
-	/*
-	chef(food1, food2, foodAvail);
-	for(int i = 0; i < 2; i++)
-	{
-		cout << foodAvail[i] << '\t';
-	}*/
-
+	
 	srand(time(0));
 	for(int i = 0; i < 100; i++){		
-		chef(food1, food2, foodAvail);
+		thread chef1(chef, std::ref(food1), std::ref(food2), foodAvail);
+		chef1.join();
 		food1_taken = false;
 
 		if(!food1_taken){
@@ -135,7 +130,7 @@ int main()
                                 hamburger_food[0] = food2;
                                 food2_taken = true;
                         }
-                        else if(!ham_has_first && (food2 == 2 || food2 == 3)){
+                        else if(ham_has_first == false || (food2 == 2 || food2 == 3)){
                                 hamburger_food[1] = food2;
 				ham_has_first = false;
                                 food2_taken = true;
@@ -146,7 +141,7 @@ int main()
                                 fries_food[1] = food2;
                                 food2_taken = true;
                         }	
-			else if(!fries_has_first && (food2 == 1 || food2 == 3)){
+			else if(fries_has_first == false ||  (food2 == 1 || food2 == 3)){
                                 fries_food[1] = food2;
 				fries_has_first = false;
                                 food2_taken = true;
@@ -157,7 +152,7 @@ int main()
                                 soda_food[0] = food2;
                                 food2_taken = true;
                         }
-                        else if(!soda_has_first && (food2 == 1 || food2 == 2)){
+                        else if(soda_has_first == false || (food2 == 1 || food2 == 2)){
                                 soda_food[1] = food2;
 				soda_has_first = false;
                                 food2_taken = true;
@@ -165,10 +160,16 @@ int main()
                 }
 
 
-		hamburger_customer(foodAvail, hamburger_food, hamburger_eatCount);
-		fries_customer(foodAvail, fries_food, fries_eatCount);
-		soda_customer(foodAvail, soda_food, soda_eatCount);
+		//hamburger_customer(foodAvail, hamburger_food, hamburger_eatCount);
+		//fries_customer(foodAvail, fries_food, fries_eatCount);
+		//soda_customer(foodAvail, soda_food, soda_eatCount);
 		
+		thread ham(hamburger_customer, foodAvail, hamburger_food, std::ref(hamburger_eatCount));
+		thread fries(fries_customer, foodAvail, fries_food, std::ref(fries_eatCount));
+		thread soda(soda_customer, foodAvail, soda_food, std::ref(soda_eatCount));
+		ham.join();
+		fries.join();
+		soda.join();
 		cout << "Hamburger ate: " << hamburger_eatCount << "\tFries ate: " << fries_eatCount << "\tSoda ate: " << soda_eatCount << "\n";
 	}
 }
