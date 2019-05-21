@@ -31,11 +31,9 @@ int chef(int &food1, int &food2, int foodAvail[])
 }
 
 int hamburger_customer(int foodAvail[], int currentFood[], int &eatCount){
-	if(foodAvail[0] == 2 || foodAvail[0] == 3){
-		if(foodAvail[1] == 2 || foodAvail[1] == 3){
+	if(currentFood[0] == 2 || currentFood[0] == 3){
+		if(currentFood[1] == 2 || currentFood[1] == 3){
 			eatCount++;
-			foodAvail[0] = 0;
-			foodAvail[1] = 0;
 			currentFood[0] = 0;
 			currentFood[1] = 0;
 		}
@@ -43,24 +41,20 @@ int hamburger_customer(int foodAvail[], int currentFood[], int &eatCount){
 }
 
 int fries_customer(int foodAvail[], int currentFood[], int &eatCount){
-	if(foodAvail[0] == 1 || foodAvail[0] == 3){
-               if(foodAvail[1] == 1 || foodAvail[1] == 3){
+	if(currentFood[0] == 1 || currentFood[0] == 3){
+               if(currentFood[1] == 1 || currentFood[1] == 3){
                        eatCount++;
-                       foodAvail[0] = 0;
-                       foodAvail[1] = 0;
-		       currentFood[0] = 0;
+                       currentFood[0] = 0;
 		       currentFood[1] = 0;
                }
        }
 }
 
 int soda_customer(int foodAvail[], int currentFood[], int &eatCount){
-   if(foodAvail[0] == 1 || foodAvail[0] == 2){
-                if(foodAvail[1] == 1 || foodAvail[1] == 2){
+   if(currentFood[0] == 1 || currentFood[0] == 2){
+                if(currentFood[1] == 1 || currentFood[1] == 2){
                         eatCount++;
-                        foodAvail[0] = 0;
-                        foodAvail[1] = 0;
-			currentFood[0] = 0;
+                	currentFood[0] = 0;
 			currentFood[1] = 0;
                 }
         }	
@@ -81,88 +75,108 @@ int main()
 	bool fries_has_first = false;
 	bool soda_has_first = false;
 
-	int hamburger_food[2] = {0,0};
+	int hamburger_food[2] = {0, 0};
 	int fries_food[2] = {0, 0};
 	int soda_food[2] = {0, 0};
 	
+	int prev_food[2] = {0, 0};
 	srand(time(0));
 	for(int i = 0; i < 100; i++){		
+		//chef(food1, food2, foodAvail); //Use to run code without threads
 		thread chef1(chef, std::ref(food1), std::ref(food2), foodAvail);
 		chef1.join();
+		cout<<"Food1= "<<food1<<" Food2= "<<food2<<"\n";
 		food1_taken = false;
-
+		food2_taken = false;
 		if(!food1_taken){
 			if(hamburger_food[0] == 0 && (food1 == 2 || food1 == 3)){
-				hamburger_food[0] = food1;
 				ham_has_first = true;
+				hamburger_food[0] = food1;
 				food1_taken = true;
 			}
-			else if(hamburger_food[1] == 0 && (food1 == 2 || food1 == 3)){
+			else if(hamburger_food[1] == 0 && hamburger_food[0] != food1 && (food1 == 2 || food1 == 3)){
 				hamburger_food[1] = food1;
 				food1_taken = true;
 			}
 		
 
-			if(fries_food[0] == 0 && (food1 == 1 || food1 == 3)){
+			else if(fries_food[0] == 0 && (food1 == 1 || food1 == 3)){
 				fries_has_first = true;
                         	fries_food[0] = food1;
                         	food1_taken = true;
                 	}
-			else if(fries_food[1] == 0 && (food1 == 1 || food1 == 3)){
-                                fries_food[1] = food1;
+			else if(fries_food[1] == 0 && fries_food[0] != food1  &&(food1 == 1 || food1 == 3)){
+				fries_food[1] = food1;
                                 food1_taken = true;
                         }
 
 
-			if(soda_food[0] == 0 && (food1 == 1 || food1 == 2)){
+			else if(soda_food[0] == 0 && (food1 == 1 || food1 == 2)){
 				soda_has_first = true;
                         	soda_food[0] = food1;
                         	food1_taken = true;
                 	}
-			else if(soda_food[1] == 0 && (food1 == 1 || food1 == 2)){
-                                soda_food[1] = food1;
+			else if(soda_food[1] == 0 && soda_food[0] != food1  && (food1 == 1 || food1 == 2)){
+				soda_food[1] = food1;
                                 food1_taken = true;
                         }
+			else{
+				food1_taken = true;
+			}
                 }
 
-		if(!food2_taken){
+		if(food1_taken && !food2_taken){
                         if(hamburger_food[0] == 0 && (food2 == 2 || food2 == 3)){
                                 hamburger_food[0] = food2;
                                 food2_taken = true;
                         }
-                        else if(ham_has_first == false || (food2 == 2 || food2 == 3)){
-                                hamburger_food[1] = food2;
+			else if(ham_has_first == false && food2 != hamburger_food[0] && (food2 == 2 || food2 == 3)){
+				hamburger_food[1] = food2;
 				ham_has_first = false;
                                 food2_taken = true;
                         }
 
                         
-                        if(fries_food[1] == 0 && (food2 == 1 || food2 == 3)){
-                                fries_food[1] = food2;
+			else if(fries_food[0] == 0 && (food2 == 1 || food2 == 3)){
+				fries_food[0] = food2;
                                 food2_taken = true;
                         }	
-			else if(fries_has_first == false ||  (food2 == 1 || food2 == 3)){
-                                fries_food[1] = food2;
+			else if(fries_has_first == false && food2 != fries_food[0] && (food2 == 1 || food2 == 3)){
+				fries_food[1] = food2;
 				fries_has_first = false;
                                 food2_taken = true;
                         }
 
 
-                        if(soda_food[0] == 0 && (food2 == 1 || food2 == 2)){
-                                soda_food[0] = food2;
+			else if(soda_food[0] == 0 && (food2 == 1 || food2 == 2)){
+				soda_food[0] = food2;
                                 food2_taken = true;
                         }
-                        else if(soda_has_first == false || (food2 == 1 || food2 == 2)){
-                                soda_food[1] = food2;
+			else if(soda_has_first == false && food2 != soda_food[0] && (food2 == 1 || food2 == 2)){
+				soda_food[1] = food2;
 				soda_has_first = false;
                                 food2_taken = true;
                         }
+			else{
+				ham_has_first = false;
+				fries_has_first = false;
+				soda_has_first = false;
+			}
                 }
 
-
-		//hamburger_customer(foodAvail, hamburger_food, hamburger_eatCount);
-		//fries_customer(foodAvail, fries_food, fries_eatCount);
-		//soda_customer(foodAvail, soda_food, soda_eatCount);
+		if(food1_taken && food2_taken){
+			foodAvail[0] = 0;
+			foodAvail[1] = 0;
+		}
+		
+		for(int z = 0; z < 2; z++){
+			cout<<"Hamburger Food["<<z<<"] : "<<hamburger_food[z]<< "\tFries Food["<<z<<"] : "<<fries_food[z]<< "\tSoda Food["<<z<<"] : "<<soda_food[z] <<"\n";
+		}
+		/*//Use functions below to run without threading
+		hamburger_customer(foodAvail, hamburger_food, hamburger_eatCount);
+		fries_customer(foodAvail, fries_food, fries_eatCount);
+		soda_customer(foodAvail, soda_food, soda_eatCount);*/
+		
 		
 		thread ham(hamburger_customer, foodAvail, hamburger_food, std::ref(hamburger_eatCount));
 		thread fries(fries_customer, foodAvail, fries_food, std::ref(fries_eatCount));
@@ -170,6 +184,7 @@ int main()
 		ham.join();
 		fries.join();
 		soda.join();
-		cout << "Hamburger ate: " << hamburger_eatCount << "\tFries ate: " << fries_eatCount << "\tSoda ate: " << soda_eatCount << "\n";
+		
+		cout << "Hamburger ate: " << hamburger_eatCount << "\tFries ate: " << fries_eatCount << "\tSoda ate: " << soda_eatCount << "\n\n";
 	}
 }
