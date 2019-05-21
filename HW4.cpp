@@ -185,6 +185,6 @@ int main()
 		fries.join();
 		soda.join();
 		
-		cout << "Hamburger ate: " << hamburger_eatCount << "\tFries ate: " << fries_eatCount << "\tSoda ate: " << soda_eatCount << "\n\n";
+		cout << "Hamburger customer ate: " << hamburger_eatCount << "\tFries customer ate: " << fries_eatCount << "\tSoda customer ate: " << soda_eatCount << "\n\n";
 	}
 }
